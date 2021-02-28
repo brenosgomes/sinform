@@ -9,7 +9,7 @@ module.exports = app => {
     app.route("/user/:id")
       .get(app.api.user.getById)
       .patch(app.api.user.patch)
-      .put(app.api.user.put)
+      .put(multer(multerConfig).single("photograph"), app.api.user.put)
       .delete(app.api.user.remove)
 
     app.route("/userEvent")

@@ -127,12 +127,12 @@ module.exports = (app) => {
           user_url: req.body.url,
         });
       }
-      const getEmailUser = await knex("user")
+      const emailUserFromDB = await knex("user")
         .where({ user_email: user_email })
         .first();
-      existsOrError(getEmailUser, "user não encontrado");
+      existsOrError(emailUserFromDB, "user não encontrado");
 
-      const user_id = getEmailUser.user_id;
+      const user_id = emailUserFromDB.user_id;
       const certificate_id = uuid();
       const certificate_participationTime = 0;
 
@@ -142,7 +142,7 @@ module.exports = (app) => {
         certificate_participationTime,
       });
 
-      res.json({ id_user: finalUser[0], profile_pic: req.body.url });
+      res.status(201).json({msg: "usuario cadastrado", user: finalUser})
     } catch (msg) {
       console.log(msg);
       return res.status(400).send(msg);
@@ -176,15 +176,47 @@ module.exports = (app) => {
   };
 
   const put = async (req, res) => {
-    const user = req.body;
+    const {
+      user_email,
+      user_name,
+      user_password,
+      user_city,
+      user_state,
+      user_university
+    } = req.body;
     const user_id = req.params.id;
     try {
       existsOrError(user_id, "user does not exist!");
 
-      const attUser = await knex("user")
-        .update(user)
-        .where({ user_id: user_id });
-      existsOrError(attUser, "user not found");
+      if(req.file){
+        if (!req.body.url)
+          req.body.url = `http://localhost:5000/files/${req.file.filename}`;
+
+        finalUser = await knex("user").update({
+          user_email,
+          user_name,
+          user_city,
+          user_state,
+          user_university,
+          user_size: req.file.size,
+          user_key: req.file.filename,
+          user_url: req.body.url,
+        });
+      } else {
+        if (!req.body.url)
+          req.body.url = "http://localhost:5000/files/image.jpg";
+
+        finalUser = await knex("user").update({
+          user_email,
+          user_name,
+          user_city,
+          user_state,
+          user_university,
+          user_size: 85448,
+          user_key: "image.jpg",
+          user_url: req.body.url,
+        });
+      }
 
       res.status(200).send();
     } catch (msg) {

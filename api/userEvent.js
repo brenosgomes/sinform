@@ -46,17 +46,51 @@ module.exports = (app) => {
     const user_id = userEvent.user_id;
     const event_id = userEvent.event_id;
 
-    try {
-      const newUserEvent = await knex("userEvent").insert({
-        user_id,
-        event_id,
-        userEvent_presence,
-      });
-      res.json(newUserEvent);
-    } catch (err) {
-      console.log(err);
-      return res.status(500).send(err);
-    }
+    const typeEventFromDB = await knex("event")
+      .where({event_id: event_id})
+      .first();
+
+    const sizeOfEvent = await knex("userEvent")
+      .where({event_id: event_id})
+
+    const verify = await knex("userEvent")
+      .where({ event_id: event_id, user_id: user_id})
+
+    console.log(verify)
+
+    if(verify.length == 0){
+      if(typeEventFromDB.event_type){
+        if(sizeOfEvent.length <= 40){
+          try {
+            const newUserEvent = await knex("userEvent").insert({
+              user_id,
+              event_id,
+              userEvent_presence,
+            });
+            res.json(newUserEvent);
+          } catch (err) {
+            console.log(err);
+            return res.status(500).send(err);
+          }
+        } else {
+          return res.status(500).json("Numero maximo de participantes atingido");
+        }
+      } else {
+        try {
+          const newUserEvent = await knex("userEvent").insert({
+            user_id,
+            event_id,
+            userEvent_presence,
+          });
+          res.json(newUserEvent);
+        } catch (err) {
+          console.log(err);
+          return res.status(500).send(err);
+        }
+      }
+    } else {
+      return res.status(500).json("Usuario já cadastrado em evento")
+    }    
   };
 
   const put = async (req, res) => {
