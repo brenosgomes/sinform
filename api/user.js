@@ -33,36 +33,36 @@ module.exports = (app) => {
 
   const remove = async (req, res) => {
     try {
-        existsOrError(req.params.id, "user não existe!");
+      existsOrError(req.params.id, "user não existe!");
 
-        const rows = await knex("user")
-            .where({ user_id: req.params.id })
-            .first();
+      const rows = await knex("user")
+        .where({ user_id: req.params.id })
+        .first();
 
-        const removeUser = await knex("user")
-            .del()
-            .where({ user_id: req.params.id });
+      const removeUser = await knex("user")
+        .del()
+        .where({ user_id: req.params.id });
 
-        existsOrError(removeUser, "user não encontrado");
+      existsOrError(removeUser, "user não encontrado");
 
-        if(rows.user_key != "image.jpg"){
-          fs.unlink(`tmp/${rows.user_key}`, (err) => {
-              if (err) {
-                  console.log(err);
-              } else {
-              console.log("removed");
-              }
-          });
-        }
+      if (rows.user_key != "image.jpg") {
+        fs.unlink(`tmp/${rows.user_key}`, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("removed");
+          }
+        });
+      }
 
-        console.log(rows.user_key);
+      console.log(rows.user_key);
 
-        res.status(204).send();
+      res.status(204).send();
     } catch (msg) {
-        console.log(msg)
-        return res.status(400).send(msg);
+      console.log(msg)
+      return res.status(400).send(msg);
     }
-};
+  };
 
   const post = async (req, res) => {
     let {
@@ -96,7 +96,7 @@ module.exports = (app) => {
       user_password = encryptPassword(user_password);
       delete user_confirm_password;
 
-      if(req.file){
+      if (req.file) {
         if (!req.body.url)
           req.body.url = `http://localhost:5000/files/${req.file.filename}`;
 
@@ -142,7 +142,7 @@ module.exports = (app) => {
         certificate_participationTime,
       });
 
-      res.status(201).json({msg: "usuario cadastrado", user: finalUser})
+      res.status(201).json({ msg: "usuario cadastrado", user: finalUser })
     } catch (msg) {
       console.log(msg);
       return res.status(400).send(msg);
@@ -152,6 +152,7 @@ module.exports = (app) => {
   const patch = async (req, res) => {
     let { user_password, user_confirm_password } = req.body;
     const user_id = req.params.id;
+    console.log(user_id)
     try {
       existsOrError(user_password, "Senha não informada");
       existsOrError(user_confirm_password, "Confirmação de senha invalida");
@@ -163,15 +164,16 @@ module.exports = (app) => {
 
       user_password = encryptPassword(user_password);
       delete user_confirm_password;
-
+      console.log(user_password)
       const attUser = await knex("user")
-        .update(user_password)
+        .update({user_password})
         .where({ user_id: user_id });
       existsOrError(attUser, "user not found");
 
-      res.status(200).send(attUser);
-    } catch (msg) {
-      return res.status(400).send(msg);
+      res.status(200).json(attUser);
+    } catch (err) {
+      console.log("erro => " + err)
+      return res.status(400).send(err);
     }
   };
 
@@ -195,12 +197,12 @@ module.exports = (app) => {
         user_state: state,
         user_university: university
       })
-      .where({user_id})
-    
+        .where({ user_id })
+
       res.status(200).send();
     } catch (err) {
       console.log(err)
-      return res.status(400).send({msg: err.msg});
+      return res.status(400).send({ msg: err.msg });
     }
   };
 
