@@ -177,50 +177,30 @@ module.exports = (app) => {
 
   const put = async (req, res) => {
     const {
-      user_email,
-      user_name,
-      user_password,
-      user_city,
-      user_state,
-      user_university
+      email,
+      name,
+      city,
+      state,
+      university
     } = req.body;
     const user_id = req.params.id;
+
     try {
       existsOrError(user_id, "user does not exist!");
 
-      if(req.file){
-        if (!req.body.url)
-          req.body.url = `http://localhost:5000/files/${req.file.filename}`;
-
-        finalUser = await knex("user").update({
-          user_email,
-          user_name,
-          user_city,
-          user_state,
-          user_university,
-          user_size: req.file.size,
-          user_key: req.file.filename,
-          user_url: req.body.url,
-        });
-      } else {
-        if (!req.body.url)
-          req.body.url = "http://localhost:5000/files/image.jpg";
-
-        finalUser = await knex("user").update({
-          user_email,
-          user_name,
-          user_city,
-          user_state,
-          user_university,
-          user_size: 85448,
-          user_key: "image.jpg",
-          user_url: req.body.url,
-        });
-      }
-
+      finalUser = await knex("user").update({
+        user_email: email,
+        user_name: name,
+        user_city: city,
+        user_state: state,
+        user_university: university
+      })
+      .where({user_id})
+    
       res.status(200).send();
-    } catch (msg) {
-      return res.status(400).send(msg);
+    } catch (err) {
+      console.log(err)
+      return res.status(400).send({msg: err.msg});
     }
   };
 
