@@ -1,8 +1,5 @@
 const app = require("express")();
 const consign = require("consign");
-const path = require("express-static")
-
-app.use('/files', path(__dirname+'/tmp'))
 
 consign()
     .include("./config/middleware.js")

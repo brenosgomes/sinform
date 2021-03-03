@@ -56,8 +56,6 @@ module.exports = (app) => {
     const verify = await knex("userEvent")
       .where({ event_id: event_id, user_id: user_id})
 
-    console.log(verify)
-
     if(verify.length == 0){
       if(typeEventFromDB.event_type){
         if(sizeOfEvent.length <= 40){

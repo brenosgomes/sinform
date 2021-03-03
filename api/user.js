@@ -35,25 +35,11 @@ module.exports = (app) => {
     try {
       existsOrError(req.params.id, "user não existe!");
 
-      const rows = await knex("user")
-        .where({ user_id: req.params.id })
-        .first();
-
       const removeUser = await knex("user")
         .del()
         .where({ user_id: req.params.id });
 
       existsOrError(removeUser, "user não encontrado");
-
-      if (rows.user_key != "image.jpg") {
-        fs.unlink(`tmp/${rows.user_key}`, (err) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("removed");
-          }
-        });
-      }
 
       console.log(rows.user_key);
 
@@ -88,6 +74,7 @@ module.exports = (app) => {
       const userFromDB = await knex("user")
         .where({ user_email: user_email })
         .first();
+
       if (user_email) {
         notExistsOrError(userFromDB, "user já cadastrado");
         res.status(400);
@@ -96,37 +83,15 @@ module.exports = (app) => {
       user_password = encryptPassword(user_password);
       delete user_confirm_password;
 
-      if (req.file) {
-        if (!req.body.url)
-          req.body.url = `http://localhost:5000/files/${req.file.filename}`;
-
-        finalUser = await knex("user").insert({
-          user_email,
-          user_name,
-          user_password,
-          user_city,
-          user_state,
-          user_university,
-          user_size: req.file.size,
-          user_key: req.file.filename,
-          user_url: req.body.url,
-        });
-      } else {
-        if (!req.body.url)
-          req.body.url = "http://localhost:5000/files/image.jpg";
-
-        finalUser = await knex("user").insert({
-          user_email,
-          user_name,
-          user_password,
-          user_city,
-          user_state,
-          user_university,
-          user_size: 85448,
-          user_key: "image.jpg",
-          user_url: req.body.url,
-        });
-      }
+      const finalUser = await knex("user").insert({
+        user_email,
+        user_name,
+        user_password,
+        user_city,
+        user_state,
+        user_university
+      });
+      
       const emailUserFromDB = await knex("user")
         .where({ user_email: user_email })
         .first();

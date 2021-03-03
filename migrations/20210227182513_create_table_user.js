@@ -7,9 +7,7 @@ exports.up = function (knex) {
       table.string("user_city").nullable();
       table.string("user_state").nullable();
       table.string("user_university").nullable();
-      table.string("user_size").notNull();
-      table.string("user_url").notNull();
-      table.string("user_key").notNull();
+      table.string("user_stateUniversity").nullable();
     });
   };
   

@@ -1,15 +1,12 @@
-const multer = require("multer");
-const multerConfig = require("../config/multer");
-
 module.exports = app => {
     app.route("/user")
       .get(app.api.user.get)
-      .post(multer(multerConfig).single("photograph"), app.api.user.post)
+      .post(app.api.user.post)
 
     app.route("/user/:id")
       .get(app.api.user.getById)
       .patch(app.api.user.patch)
-      .put(multer(multerConfig).single("photograph"), app.api.user.put)
+      .put(app.api.user.put)
       .delete(app.api.user.remove)
 
     app.route("/userEvent")
@@ -19,8 +16,10 @@ module.exports = app => {
 
     app.route("/userEvent/:id")
       .get(app.api.userEvent.getById)
-      
       .delete(app.api.userEvent.remove)
+
+    app.route("/sendMails")
+      .get(app.api.sendCertificate.getParticipant)
 
     app.route("/signin").post(app.api.userAuth.signIn)
     app.route("/validateToken").post(app.api.userAuth.validateToken)
