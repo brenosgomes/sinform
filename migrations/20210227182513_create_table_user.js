@@ -8,6 +8,8 @@ exports.up = function (knex) {
       table.string("user_state").nullable();
       table.string("user_university").nullable();
       table.string("user_stateUniversity").nullable();
+      table.string("user_token").nullable();
+      table.datetime("user_expiresToken").nullable();
     });
   };
   

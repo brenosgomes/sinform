@@ -58,6 +58,7 @@ module.exports = (app) => {
       user_city,
       user_state,
       user_university,
+      user_stateUniversity,
       user_confirm_password,
     } = req.body;
 
@@ -89,7 +90,8 @@ module.exports = (app) => {
         user_password,
         user_city,
         user_state,
-        user_university
+        user_university,
+        user_stateUniversity
       });
       
       const emailUserFromDB = await knex("user")
@@ -114,41 +116,14 @@ module.exports = (app) => {
     }
   };
 
-  const patch = async (req, res) => {
-    let { user_password, user_confirm_password } = req.body;
-    const user_id = req.params.id;
-    console.log(user_id)
-    try {
-      existsOrError(user_password, "Senha não informada");
-      existsOrError(user_confirm_password, "Confirmação de senha invalida");
-      equalsOrError(
-        user_password,
-        user_confirm_password,
-        "Senhas não conferem"
-      );
-
-      user_password = encryptPassword(user_password);
-      delete user_confirm_password;
-      console.log(user_password)
-      const attUser = await knex("user")
-        .update({user_password})
-        .where({ user_id: user_id });
-      existsOrError(attUser, "user not found");
-
-      res.status(200).json(attUser);
-    } catch (err) {
-      console.log("erro => " + err)
-      return res.status(400).send(err);
-    }
-  };
-
   const put = async (req, res) => {
     const {
       email,
       name,
       city,
       state,
-      university
+      university,
+      stateUniversity
     } = req.body;
     const user_id = req.params.id;
 
@@ -160,7 +135,8 @@ module.exports = (app) => {
         user_name: name,
         user_city: city,
         user_state: state,
-        user_university: university
+        user_university: university,
+        user_stateUniversity: stateUniversity 
       })
         .where({ user_id })
 
@@ -171,5 +147,5 @@ module.exports = (app) => {
     }
   };
 
-  return { get, getById, post, put, remove, patch };
+  return { get, getById, post, put, remove };
 };

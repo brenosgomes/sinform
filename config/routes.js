@@ -5,7 +5,6 @@ module.exports = app => {
 
     app.route("/user/:id")
       .get(app.api.user.getById)
-      .patch(app.api.user.patch)
       .put(app.api.user.put)
       .delete(app.api.user.remove)
 
@@ -18,8 +17,11 @@ module.exports = app => {
       .get(app.api.userEvent.getById)
       .delete(app.api.userEvent.remove)
 
-    app.route("/sendMails")
-      .get(app.api.sendCertificate.getParticipant)
+    app.route("/forgotPassword")
+      .post(app.api.redefinePassword.forgotPassword)
+
+    app.route("/resetPassword")
+      .post(app.api.redefinePassword.resetPassword)
 
     app.route("/signin").post(app.api.userAuth.signIn)
     app.route("/validateToken").post(app.api.userAuth.validateToken)

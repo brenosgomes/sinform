@@ -33,7 +33,7 @@ module.exports = (app) => {
       city: user.user_city,
       state: user.user_state,
       university: user.user_university,
-      img: user.user_url,
+      stateUniversity: user.user_stateUniversity,
       iat: now,
       exp: now + 1000 * 60 * 60 * 24,
     };
@@ -54,8 +54,7 @@ module.exports = (app) => {
           return res.status(200).json({
             success: true,
             name: token.name,
-            email: token.email,
-            img: token.img
+            email: token.email
           });
         }
       }
