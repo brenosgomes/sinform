@@ -20,8 +20,8 @@ module.exports = app => {
     app.route("/forgotPassword")
       .post(app.api.redefinePassword.forgotPassword)
 
-    app.route("/resetPassword")
-      .post(app.api.redefinePassword.resetPassword)
+    app.route("/resetPassword/:token")
+      .put(app.api.redefinePassword.resetPassword)
 
     app.route("/signin").post(app.api.userAuth.signIn)
     app.route("/validateToken").post(app.api.userAuth.validateToken)

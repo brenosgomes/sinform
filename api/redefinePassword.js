@@ -49,18 +49,18 @@ module.exports = app =>{
                 text: "Para alterar sua senha acesse o link https://www.sinform.com.br/recover/" + token
             }
 
-            transporter.sendMail(email, (err, info) => { 
-                console.log("email enviado")
-            })
+            transporter.sendMail(email)
 
-            return res.status(200)
+            res.status(200).send("Email enviado")
         } catch (err){
             return res.status(400).send({error: "Erro ao resetar senha"})
         }
     }
 
     const resetPassword = async (req, res) => {
-        let { user_token, user_email, user_password, user_confirm_password } = req.body;
+        let { user_email, user_password, user_confirm_password } = req.body;
+        const user_token = req.params.token
+        console.log(user_token)
         try {
             existsOrError(user_password, "Senha não informada");
             existsOrError(user_confirm_password, "Confirmação de senha invalida");
@@ -76,8 +76,6 @@ module.exports = app =>{
             equalsOrError(user_token, findUserByEmail.user_token, "Token invalido")
 
             const now = new Date()
-            console.log(now)
-            console.log(findUserByEmail.user_expiresToken)
             if(now > findUserByEmail.user_expiresToken)
                 return res.status(400).send({ error: "O token expirou"})
 
@@ -89,7 +87,7 @@ module.exports = app =>{
                 .where({ user_email: user_email });
             existsOrError(attUser, "user not found");
 
-            res.status(200).json(attUser);
+            res.status(200).send("Senha redefinida");
         } catch (err) {
                 console.log("erro => " + err)
                 return res.status(400).send(err);
