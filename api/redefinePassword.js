@@ -24,15 +24,16 @@ module.exports = app =>{
     })
 
     const forgotPassword = async (req, res) => {
-        const  { user_email } = req.body;
+        const  {user_email} = req.body;
 
         try{
             const findUserByEmail = await knex("user")
-                .where({ user_email: user_email })
+                .where({ user_email })
                 .first()
 
-            if(!findUserByEmail)
-                return res.status(400).send({error: "Usuario não enontrado"})
+            if(!findUserByEmail){
+                res.status(400).send({error: "Usuario não enontrado"})
+            }
             
             const token  = crypto.randomBytes(20).toString('hex')
             const now = new Date()
@@ -45,38 +46,37 @@ module.exports = app =>{
             const email = {
                 from: "CACIC",
                 to: user_email,
-                subject: "Email de recuperação de senha",
-                text: "Para alterar sua senha acesse o link https://www.sinform.com.br/recover/" + token
+                subject: "[SINFORM 2021] Recuperação de senha",
+                text: "Para alterar sua senha acesse o link https://www.sinform.com.br/redefine?token=" + token
             }
 
             transporter.sendMail(email)
 
             res.status(200).send("Email enviado")
         } catch (err){
-            return res.status(400).send({error: "Erro ao resetar senha"})
+            res.status(400).send({error: "Erro ao resetar senha"})
         }
     }
 
     const resetPassword = async (req, res) => {
-        let { user_email, user_password, user_confirm_password } = req.body;
+        let { user_password, user_confirm_password } = req.body;
         const user_token = req.params.token
         console.log(user_token)
+        console.log(req.body)
         try {
             existsOrError(user_password, "Senha não informada");
             existsOrError(user_confirm_password, "Confirmação de senha invalida");
-            equalsOrError(user_password,    user_confirm_password, "Senhas não conferem");
+            equalsOrError(user_password, user_confirm_password, "Senhas não conferem");
 
-            const findUserByEmail = await knex("user")
-                    .where({ user_email: user_email })
+            const findUserByToken = await knex("user")
+                    .where({ user_token: user_token })
                     .first()
 
-            if(!findUserByEmail)
+            if(!findUserByToken)
                 return res.status(400).send({error: "Usuario não enontrado"})
 
-            equalsOrError(user_token, findUserByEmail.user_token, "Token invalido")
-
             const now = new Date()
-            if(now > findUserByEmail.user_expiresToken)
+            if(now > findUserByToken.user_expiresToken)
                 return res.status(400).send({ error: "O token expirou"})
 
             user_password = encryptPassword(user_password);
@@ -84,7 +84,7 @@ module.exports = app =>{
 
             const attUser = await knex("user")
                 .update({user_password})
-                .where({ user_email: user_email });
+                .where({ user_email: findUserByToken.user_email });
             existsOrError(attUser, "user not found");
 
             res.status(200).send("Senha redefinida");
